@@ -2,10 +2,8 @@
 My current QMK firmware for a ZSA Moonlander keyboard, used to change color of some keys with theme change on PC.
 This build has been adapted from my Colemak-like layout, initially changed from TheOneWhoCodes' layout [Rainbow Cake v2 (Colemak Mod DH)](https://configure.zsa.io/moonlander/layouts/Ze0bo/latest/0), utilising home row modifiers. 
 
-If I remember, here you can find my current layout (with as much functionality as I could add there) on oryx:
-
 # Build
-Instructions are for compiling against [ZSA's QMK fork](https://github.com/zsa/qmk_firmware/). I have not tested compiling against mainline QMK.
+Instructions are for compiling against mainline QMK. Compiling against the ZSA fork should work, but I have not tested it.
 
 ## Environment Setup
 Follow the [QMK Setup guide](https://docs.qmk.fm/newbs_getting_started#set-up-your-environment). Specific instructions are given for Arch and Void:
@@ -27,20 +25,9 @@ python3 -m pip install --user qmk
 For both Arch and Void, run
 
 ``` sh
-qmk setup zsa/qmk_firmware -b firmware25
+qmk setup qmb/qmk_firmware
 qmk compile -kb zsa/moonlander -km default
 ```
-This sets up qmk with the ZSA fork and tries to compile the default layout for the moonlander. If successful, it should say the some positive things like "The firmware size is fine" and no negative things. You might want to specify a different branch for the firmware, change firmware24 to the wanted branch name for that.
-
-I had to add 
-
-``` c
-enum planck_ez_keycodes {
-    TOGGLE_LAYER_COLOR = QK_KB_0,
-    LED_LEVEL,
-};
-```
-manually to moonlander.h, but I hope that is not the case anymore when reading this.
 
 Also, some file permissions might need to updated. Run
 
@@ -65,3 +52,16 @@ Run
 qmk flash -kb zsa/moonlander -km colors
 ```
 
+# Usage
+
+Run
+
+``` sh
+./send_color "#ff00ff"
+```
+with whatever color you like. The default format is "#rrggbb" in base 16.
+
+# Further Ideas
+This should be reasonably expandable to allow for complete colormaps (or just a set of colors) to be sent by using an additional control bit in the raw hid. I am currently happy with a single color being changed, but I might come back to this in the future.
+
+Also, colors are lost on boot. While it is also easier to implement that way, I like that functionality, so I don't plan on changing that. When rebooting, default colors are used until a color is sent.
