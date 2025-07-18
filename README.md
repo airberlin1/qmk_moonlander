@@ -21,12 +21,11 @@ Void:
 xbps-install -y git python3-pip
 xbps-install qmk
 ```
-### Setup and Testing
+### Setup
 For both Arch and Void, run
 
 ``` sh
 qmk setup qmb/qmk_firmware
-qmk compile -kb zsa/moonlander -km default
 ```
 
 Also, some file permissions might need to updated. Run
