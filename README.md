@@ -19,7 +19,7 @@ Void:
 
 ``` sh
 xbps-install -y git python3-pip
-python3 -m pip install --user qmk
+xbps-install qmk
 ```
 ### Setup and Testing
 For both Arch and Void, run
