@@ -63,5 +63,3 @@ with whatever color you like. The default format is "#rrggbb" in base 16.
 
 # Further Ideas
 This should be reasonably expandable to allow for complete colormaps (or just a set of colors) to be sent by using an additional control bit in the raw hid. I am currently happy with a single color being changed, but I might come back to this in the future.
-
-Also, colors are lost on boot. While it is also easier to implement that way, I like that functionality, so I don't plan on changing that. When rebooting, default colors are used until a color is sent.
