@@ -25,7 +25,7 @@ xbps-install qmk
 For both Arch and Void, run
 
 ``` sh
-qmk setup qmb/qmk_firmware
+qmk setup qmk/qmk_firmware
 ```
 
 Also, some file permissions might need to updated. Run
@@ -53,12 +53,17 @@ qmk flash -kb zsa/moonlander -km colors
 
 # Usage
 
-Run
+The keyboard coloring has two modes that can be toggled with
 
 ``` sh
-./send_color "#ff00ff"
+./send_color.py toggle_mode
 ```
-with whatever color you like. The default format is "#rrggbb" in base 16.
+The default mode shows a custom set of colors that do not change. The other mode allows the main color to be changed with
+
+``` sh
+./send_color.py "#ff00ff"
+```
+with whatever color you like. Currently, the only format for colors is "#rrggbb" in base 16.
 
 # Further Ideas
 This should be reasonably expandable to allow for complete colormaps (or just a set of colors) to be sent by using an additional control bit in the raw hid. I am currently happy with a single color being changed, but I might come back to this in the future.
