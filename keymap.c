@@ -41,6 +41,7 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
 static uint8_t stored_r = 0;
 static uint8_t stored_g = 0;
 static uint8_t stored_b = 0;
+static uint8_t special_colors = 1;
 
 // needed to update colors immediately when new colors are sent
 static int current_layer = 0;
@@ -58,15 +59,25 @@ const uint8_t PROGMEM ledmap_dynamic_leds[][RGB_MATRIX_LED_COUNT] = {
 [8] = {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}
 };
 
+const uint8_t PROGMEM ledmap_special_colors[RGB_MATRIX_LED_COUNT][3] = {{255, 119, 0}, {240, 110, 0}, {45, 12, 0}, {255, 255, 0}, {0, 50, 0}, {240, 110, 0}, {220, 95, 0}, {0, 0, 255}, {0, 50, 0}, {0, 50, 0}, {120, 0, 120}, {0, 120, 120}, {120, 120, 0}, {120, 0, 0}, {0, 50, 0}, {170, 0, 0}, {255, 150, 150}, {0, 120, 120}, {0, 0, 120}, {0, 50, 0}, {214, 2, 112}, {155, 79,  150}, {0, 56, 168}, {10, 10, 10}, {0, 50, 0}, {214, 2, 112}, {155, 79, 150}, {0, 56, 168}, {10, 10, 10}, {214, 2, 112}, {155, 79, 150}, {0, 56, 168}, {10, 10, 10}, {255, 0, 0}, {155, 79, 150}, {125, 0, 0}, {10, 10, 10}, {10, 10, 10}, {10, 10, 10}, {10, 10, 10}, {10, 10, 10}, {20, 20, 20}, {40, 40, 40}, {50, 50, 50}, {87, 41, 2}, {10, 10, 10}, {30, 30, 30}, {255, 0, 0}, {110, 110, 110}, {87, 41, 2}, {10, 10, 10}, {30, 30, 30}, {255, 0, 0}, {110, 110, 110}, {87, 41, 2}, {10, 10, 10}, {10, 10, 10}, {40, 40, 40}, {50, 50, 50}, {87, 41, 2}, {10, 10, 10}, {10, 10, 10}, {20, 20, 20}, {20, 20, 20}, {10, 10, 10}, {10, 10, 10}, {10, 10, 10}, {10, 10, 10}, {87, 41, 2}, {255, 255, 255}, {87, 41, 2}, {125, 0, 0}};
+
 // receiving the color through raw hid
 // probably the first byte could be used as well
 void set_layer_color(int layer);
+
 void raw_hid_receive(uint8_t *data, uint8_t length) {
-    stored_r = data[1];
-    stored_g = data[2];
-    stored_b = data[3];
-    set_layer_color(current_layer);
+    if (data[1] == 0) {
+        stored_r = data[2];
+        stored_g = data[3];
+        stored_b = data[4];
+        //set_layer_color(current_layer);
+    } else if (data[1] == 1) {
+        special_colors = 1 - special_colors;
+    }
+    
 }
+
+
 
 void set_layer_color(int layer) {
   for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
@@ -75,7 +86,9 @@ void set_layer_color(int layer) {
       .s = pgm_read_byte(&ledmap[layer][i][1]),
       .v = pgm_read_byte(&ledmap[layer][i][2]),
     };
-    if (ledmap_dynamic_leds[layer][i] && stored_b + stored_g + stored_b > 0) {
+    if (special_colors) {
+        rgb_matrix_set_color(i, ledmap_special_colors[i][0], ledmap_special_colors[i][1],  ledmap_special_colors[i][2]);
+    } else if (ledmap_dynamic_leds[layer][i] && stored_r + stored_g + stored_b > 0) {
         rgb_matrix_set_color(i, stored_r, stored_g, stored_b);  // dynamic color should be used
     } else {
         if (!hsv.h && !hsv.s && !hsv.v) {
@@ -139,11 +152,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [2] = LAYOUT_moonlander(
     KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
-    KC_NO,          KC_NO,          KC_MS_WH_DOWN,  KC_MS_UP,       KC_MS_WH_UP,    KC_NO,          KC_BRIGHTNESS_UP,                                KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
-    KC_NO,          KC_NO,          KC_MS_LEFT,     KC_MS_DOWN,     KC_MS_RIGHT,    KC_NO,          KC_BRIGHTNESS_DOWN,                                                                KC_NO,          KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
+    KC_NO,          KC_NO,          QK_MOUSE_WHEEL_DOWN,QK_MOUSE_CURSOR_UP,       QK_MOUSE_WHEEL_UP,    KC_NO,          KC_BRIGHTNESS_UP,                                KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
+    KC_NO,          KC_NO,          QK_MOUSE_CURSOR_LEFT,QK_MOUSE_CURSOR_DOWN,    QK_MOUSE_CURSOR_RIGHT,    KC_NO,          KC_BRIGHTNESS_DOWN,                                                                KC_NO,          KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
     KC_NO,          KC_NO,          KC_MEDIA_PREV_TRACK,KC_MEDIA_PLAY_PAUSE,KC_MEDIA_NEXT_TRACK,KC_NO,                                          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
-    KC_NO,          KC_NO,          KC_AUDIO_VOL_DOWN,KC_AUDIO_MUTE,  KC_AUDIO_VOL_UP,KC_MS_BTN3,                                                                                                     KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
-    KC_MS_BTN1,     KC_MS_BTN2,     KC_NO,                          KC_NO,          KC_NO,          KC_NO
+    KC_NO,          KC_NO,          KC_AUDIO_VOL_DOWN,KC_AUDIO_MUTE,KC_AUDIO_VOL_UP,QK_MOUSE_BUTTON_3,                                                                                                     KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
+    QK_MOUSE_BUTTON_1,QK_MOUSE_BUTTON_2,KC_NO,        KC_NO,        KC_NO,          KC_NO
   ),
   [3] = LAYOUT_moonlander(
     KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          
